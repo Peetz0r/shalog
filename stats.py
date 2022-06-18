@@ -49,9 +49,6 @@ print(f'numBusyAngels    =  {numBusyAngels}')
 
 with open('mqtt-login.json') as f:
   j = json.load(f)
-  pprint.pprint(j)
-
-  print(j['user'])
 
   msgs = [
     {'topic': j['topicPrefix'] + '/numTotalItems', 'payload': numTotalItems},
