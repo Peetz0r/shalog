@@ -1,4 +1,4 @@
-#!perl6
+#!/usr/bin/raku
 
 use v6;
 use lib ~$*PROGRAM.resolve.sibling: 'lib';
