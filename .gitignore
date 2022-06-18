@@ -3,3 +3,4 @@ lib/.precomp
 perl6-readline/
 .tracking.p6.swp
 
+mqtt-login.json
