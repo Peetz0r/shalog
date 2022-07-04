@@ -1,63 +1,73 @@
 #!/usr/bin/python3
 
-import glob, json, pprint, paho.mqtt.publish
+import glob, json, pprint, paho.mqtt.publish, inotify_simple
 
 with open('stats-config.json') as f:
   config = json.load(f)
 
-files = glob.glob(config['db']+'/*.json')
+inotify = inotify_simple.INotify()
+watch_flags = inotify_simple.flags.CREATE | inotify_simple.flags.MODIFY | inotify_simple.flags.DELETE
+wd = inotify.add_watch(config['db'], watch_flags)
 
-numTotalItems = 0
-numUnusedItems = 0
-numTotalLoans = 0
-numCurrentLoans = 0
-numTotalAngels = 0
-numActiveAngels = 0
-numBusyAngels = 0
+while True:
+  for event in inotify.read(read_delay=1000):
+    print(event, inotify_simple.flags.from_mask(event.mask))
 
-activeAngels = []
-busyAngels = []
+    files = glob.glob(config['db']+'/*.json')
 
-for fn in files:
-  with open(fn) as f:
-    j = json.load(f)
-    if j['class'] == 'Person':
-      numTotalAngels +=1
-    elif j['class'] == 'Thing':
-      numTotalItems +=1
-      if 'location_history' in j:
-        numTotalLoans += len(j['location_history'])
-        for h in j['location_history']:
-          if 'location' in h and h['location'] != 'lhq-returns':
-            if h['location'].startswith('angel') and h['location'] not in activeAngels:
-              activeAngels.append(j['location'])
-      else:
-        numUnusedItems +=1
-      if 'location' in j and j['location'] != 'lhq-returns':
-        numCurrentLoans +=1
-        if j['location'].startswith('angel') and j['location'] not in busyAngels:
-          busyAngels.append(j['location'])
+    numTotalItems = 0
+    numUnusedItems = 0
+    numTotalLoans = 0
+    numCurrentLoans = 0
+    numTotalAngels = 0
+    numActiveAngels = 0
+    numBusyAngels = 0
 
-numActiveAngels = len(activeAngels)
-numBusyAngels = len(busyAngels)
+    activeAngels = []
+    busyAngels = []
 
-print(f'numTotalItems    =  {numTotalItems}')
-print(f'numUnusedItems   =  {numUnusedItems}')
-print(f'numTotalLoans    =  {numTotalLoans}')
-print(f'numCurrentLoans  =  {numCurrentLoans}')
-print(f'numTotalAngels   =  {numTotalAngels}')
-print(f'numActiveAngels  =  {numActiveAngels}')
-print(f'numBusyAngels    =  {numBusyAngels}')
+    for fn in files:
+      with open(fn) as f:
+        j = json.load(f)
+        if j['class'] == 'Person':
+          numTotalAngels +=1
+        elif j['class'] == 'Thing':
+          numTotalItems +=1
+          if 'location_history' in j:
+            numTotalLoans += len(j['location_history'])
+            for h in j['location_history']:
+              if 'location' in h and h['location'] != 'lhq-returns':
+                if h['location'].startswith('angel') and h['location'] not in activeAngels:
+                  activeAngels.append(j['location'])
+          else:
+            numUnusedItems +=1
+          if 'location' in j and j['location'] != 'lhq-returns':
+            numCurrentLoans +=1
+            if j['location'].startswith('angel') and j['location'] not in busyAngels:
+              busyAngels.append(j['location'])
+
+    numActiveAngels = len(activeAngels)
+    numBusyAngels = len(busyAngels)
+
+    print(f'numTotalItems    =  {numTotalItems}')
+    print(f'numUnusedItems   =  {numUnusedItems}')
+    print(f'numTotalLoans    =  {numTotalLoans}')
+    print(f'numCurrentLoans  =  {numCurrentLoans}')
+    print(f'numTotalAngels   =  {numTotalAngels}')
+    print(f'numActiveAngels  =  {numActiveAngels}')
+    print(f'numBusyAngels    =  {numBusyAngels}')
 
 
-msgs = [
-  {'topic': j['topicPrefix'] + '/numTotalItems', 'payload': numTotalItems},
-  {'topic': j['topicPrefix'] + '/numUnusedItems', 'payload': numUnusedItems},
-  {'topic': j['topicPrefix'] + '/numTotalLoans', 'payload': numTotalLoans},
-  {'topic': j['topicPrefix'] + '/numCurrentLoans', 'payload': numCurrentLoans},
-  {'topic': j['topicPrefix'] + '/numTotalAngels', 'payload': numTotalAngels},
-  {'topic': j['topicPrefix'] + '/numActiveAngels', 'payload': numActiveAngels},
-  {'topic': j['topicPrefix'] + '/numBusyAngels', 'payload': numBusyAngels}
-]
+    msgs = [
+      {'topic': config['topicPrefix'] + '/numTotalItems', 'payload': numTotalItems},
+      {'topic': config['topicPrefix'] + '/numUnusedItems', 'payload': numUnusedItems},
+      {'topic': config['topicPrefix'] + '/numTotalLoans', 'payload': numTotalLoans},
+      {'topic': config['topicPrefix'] + '/numCurrentLoans', 'payload': numCurrentLoans},
+      {'topic': config['topicPrefix'] + '/numTotalAngels', 'payload': numTotalAngels},
+      {'topic': config['topicPrefix'] + '/numActiveAngels', 'payload': numActiveAngels},
+      {'topic': config['topicPrefix'] + '/numBusyAngels', 'payload': numBusyAngels}
+    ]
 
-paho.mqtt.publish.multiple(msgs, hostname=j['host'], auth={'username': j['user'], 'password': j['pass']})
+    paho.mqtt.publish.multiple(msgs, hostname=config['host'], auth={'username': config['user'], 'password': config['pass']})
+
+    print(f"Posted to {config['host']} {config['topicPrefix']}")
