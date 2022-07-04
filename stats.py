@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 
 import glob, json, pprint, paho.mqtt.publish, inotify_simple
 
@@ -8,6 +8,8 @@ with open('stats-config.json') as f:
 inotify = inotify_simple.INotify()
 watch_flags = inotify_simple.flags.CREATE | inotify_simple.flags.MODIFY | inotify_simple.flags.DELETE
 wd = inotify.add_watch(config['db'], watch_flags)
+
+print(f"Watching {config['db']} for stats, will post to to {config['host']} {config['topicPrefix']}")
 
 while True:
   for event in inotify.read(read_delay=1000):
