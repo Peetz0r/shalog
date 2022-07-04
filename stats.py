@@ -43,7 +43,7 @@ while True:
                   activeAngels.append(j['location'])
           else:
             numUnusedItems +=1
-          if 'location' in j and j['location'] != 'lhq-returns':
+          if 'location' in j and j['location'] != 'lhq-returns' and not j['location'].startswith('emmer'):
             numCurrentLoans +=1
             if j['location'].startswith('angel') and j['location'] not in busyAngels:
               busyAngels.append(j['location'])
