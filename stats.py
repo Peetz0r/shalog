@@ -26,17 +26,20 @@ def post_stats():
         numTotalAngels +=1
       elif j['class'] == 'Thing':
         numTotalThings +=1
+        isUnused = 1
         if 'location_history' in j:
-          numTotalLoans += len(j['location_history'])
-          isUnused = 1
+          numLoansThisThing = 0
           for h in j['location_history']:
-            if 'location' in h and h['location'] != 'lhq-returns' and not h['location'].startswith('emmer'):
-              if h['location'].startswith('angel'):
-                isUnused = 0
-                if h['location'] not in activeAngels:
-                  activeAngels.append(j['location'])
-          numUnusedThings += isUnused
-        if 'location' in j and j['location'] != 'lhq-returns' and not j['location'].startswith('emmer'):
+            if 'location' in h and h['location'] not in ('lhq-returns', 'extraspace') and not h['location'].startswith('emmer'):
+              isUnused = 0
+              numLoansThisThing += 1
+              if h['location'] not in activeAngels:
+                activeAngels.append(j['location'])
+              if j['location'] not in busyAngels:
+                busyAngels.append(j['location'])
+          numTotalLoans += numLoansThisThing
+        numUnusedThings += isUnused
+        if 'location' in j and j['location'] not in ('lhq-returns', 'extraspace') and not j['location'].startswith('emmer'):
           numCurrentLoans +=1
           if j['location'].startswith('angel') and j['location'] not in busyAngels:
             busyAngels.append(j['location'])
@@ -44,8 +47,8 @@ def post_stats():
   numActiveAngels = len(activeAngels)
   numBusyAngels = len(busyAngels)
 
-  print(f'numTotalThings    =  {numTotalThings}')
-  print(f'numUnusedThings   =  {numUnusedThings}')
+  print(f'numTotalThings   =  {numTotalThings}')
+  print(f'numUnusedThings  =  {numUnusedThings}')
   print(f'numTotalLoans    =  {numTotalLoans}')
   print(f'numCurrentLoans  =  {numCurrentLoans}')
   print(f'numTotalAngels   =  {numTotalAngels}')
