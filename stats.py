@@ -8,8 +8,8 @@ with open('stats-config.json') as f:
 def post_stats():
   files = glob.glob(config['db']+'/*.json')
 
-  numTotalItems = 0
-  numUnusedItems = 0
+  numTotalThings = 0
+  numUnusedThings = 0
   numTotalLoans = 0
   numCurrentLoans = 0
   numTotalAngels = 0
@@ -25,7 +25,7 @@ def post_stats():
       if j['class'] == 'Person':
         numTotalAngels +=1
       elif j['class'] == 'Thing':
-        numTotalItems +=1
+        numTotalThings +=1
         if 'location_history' in j:
           numTotalLoans += len(j['location_history'])
           isUnused = 1
@@ -35,7 +35,7 @@ def post_stats():
                 isUnused = 0
                 if h['location'] not in activeAngels:
                   activeAngels.append(j['location'])
-          numUnusedItems += isUnused
+          numUnusedThings += isUnused
         if 'location' in j and j['location'] != 'lhq-returns' and not j['location'].startswith('emmer'):
           numCurrentLoans +=1
           if j['location'].startswith('angel') and j['location'] not in busyAngels:
@@ -44,8 +44,8 @@ def post_stats():
   numActiveAngels = len(activeAngels)
   numBusyAngels = len(busyAngels)
 
-  print(f'numTotalItems    =  {numTotalItems}')
-  print(f'numUnusedItems   =  {numUnusedItems}')
+  print(f'numTotalThings    =  {numTotalThings}')
+  print(f'numUnusedThings   =  {numUnusedThings}')
   print(f'numTotalLoans    =  {numTotalLoans}')
   print(f'numCurrentLoans  =  {numCurrentLoans}')
   print(f'numTotalAngels   =  {numTotalAngels}')
@@ -54,8 +54,8 @@ def post_stats():
 
 
   msgs = [
-    {'topic': config['topicPrefix'] + '/numTotalItems', 'payload': numTotalItems},
-    {'topic': config['topicPrefix'] + '/numUnusedItems', 'payload': numUnusedItems},
+    {'topic': config['topicPrefix'] + '/numTotalThings', 'payload': numTotalThings},
+    {'topic': config['topicPrefix'] + '/numUnusedThings', 'payload': numUnusedThings},
     {'topic': config['topicPrefix'] + '/numTotalLoans', 'payload': numTotalLoans},
     {'topic': config['topicPrefix'] + '/numCurrentLoans', 'payload': numCurrentLoans},
     {'topic': config['topicPrefix'] + '/numTotalAngels', 'payload': numTotalAngels},
