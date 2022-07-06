@@ -32,9 +32,13 @@ if lsusb | grep -iE Brother.+PT > /dev/null; then
   echo "Detected label printer on USB"
 
   if [ "$1" == "code128" ]; then
+    # FIXME: tmp hack to use old script
+    ptouch-770-old/code128.pl "${@:2}"; exit
     code128 "$2" | ptouch-770/ptouch-770-write-usb 0 12
 
   elif [ "$1" == "aztec" ]; then
+    # FIXME: tmp hack to use old script
+    ptouch-770-old/aztec.pl "${@:2}"; exit
     aztec "$2" | ptouch-770/ptouch-770-write-usb 0 24
   fi;
 

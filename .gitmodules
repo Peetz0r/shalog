@@ -1,3 +1,6 @@
 [submodule "ptouch-770"]
 	path = ptouch-770
 	url = ../ptouch-770
+[submodule "ptouch-770-old"]
+	path = ptouch-770-old
+	url = ../ptouch-770
