@@ -30,7 +30,7 @@ def post_stats():
         if 'location_history' in j:
           numLoansThisThing = 0
           for h in j['location_history']:
-            if 'location' in h and h['location'] not in ('lhq-returns', 'extraspace') and not h['location'].startswith('emmer'):
+            if 'location' in h and h['location'].startswith('angel'):
               isUnused = 0
               numLoansThisThing += 1
               if h['location'] not in activeAngels:
@@ -39,7 +39,7 @@ def post_stats():
                 busyAngels.append(j['location'])
           numTotalLoans += numLoansThisThing
         numUnusedThings += isUnused
-        if 'location' in j and j['location'] not in ('lhq-returns', 'extraspace') and not j['location'].startswith('emmer'):
+        if 'location' in j and j['location'].startswith('angel'):
           numCurrentLoans +=1
           if j['location'].startswith('angel') and j['location'] not in busyAngels:
             busyAngels.append(j['location'])
