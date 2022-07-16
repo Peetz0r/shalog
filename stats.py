@@ -34,7 +34,7 @@ def post_stats():
               isUnused = 0
               numLoansThisThing += 1
               if h['location'] not in activeAngels:
-                activeAngels.append(j['location'])
+                activeAngels.append(h['location'])
               if j['location'] not in busyAngels:
                 busyAngels.append(j['location'])
           numTotalLoans += numLoansThisThing
