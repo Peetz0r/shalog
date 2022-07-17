@@ -25,6 +25,8 @@ def post_stats():
       if j['class'] == 'Person':
         numTotalAngels +=1
       elif j['class'] == 'Thing':
+        if j['id'].startswith('H#') or j['id'].startswith('R#'):
+          continue
         numTotalThings +=1
         isUnused = 1
         if 'location_history' in j:
