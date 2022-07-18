@@ -6,6 +6,7 @@ const path = require("path");
 
 let files = fs.readdirSync(path.join(__dirname, "db"));
 
+const containers = {};
 const locations = {};
 
 files.filter((a) => a.endsWith("json")).forEach((id) => {
@@ -17,12 +18,16 @@ files.filter((a) => a.endsWith("json")).forEach((id) => {
             }
             locations[file.location].add(file.id);
         }
+    } else if (file.class == "Container") {
+        containers[id] = true;
     }
 });
 
 Object.entries(locations).forEach(([loc, items]) => {
-    console.log("\n", chalk.red(loc, "has"));
-    items.forEach((item) => {
-        console.log("   ", item);
-    });
+    if (!containers[loc]) {
+        console.log("\n", chalk.red(loc, "has"));
+        items.forEach((item) => {
+            console.log("   ", item);
+        });
+    }
 })
