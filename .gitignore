@@ -4,3 +4,4 @@ perl6-readline/
 .tracking.p6.swp
 
 stats-config.json
+node_modules

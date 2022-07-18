@@ -1,0 +1,11 @@
+{
+  "name": "shalog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:Peetz0r/shalog.git",
+  "author": "f0x <f0x@cthu.lu>",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "chalk": "4"
+  }
+}
