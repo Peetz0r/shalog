@@ -1,0 +1,8 @@
+[Unit]
+Description=shalog sync
+
+[Timer]
+OnCalendar=*:0/1
+
+[Install]
+WantedBy=timers.target

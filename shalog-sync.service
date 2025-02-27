@@ -1,0 +1,7 @@
+[Unit]
+Description=shalog sync
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/rsync -vr %h/shalog/db [fd02::]:shalog
+TimeoutSec=30
