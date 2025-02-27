@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=mate-terminal --maximize --hide-menubar -t shalog --working-directory shalog -e './launch.sh'
+Hidden=false
+Name=shalog/tracking
+Comment=the important thing
+X-MATE-Autostart-Delay=2
+Icon=/home/warehouse/Pictures/icon.png
