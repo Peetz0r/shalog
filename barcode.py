@@ -1,12 +1,12 @@
 #!/usr/bin/python3 -u
 
-import os, sys, io, subprocess, glob
+import os, sys, io, subprocess, glob, tempfile
 
 from PIL import Image, ImageFont, ImageDraw
 
 PRINTER_GLOB = '/dev/usb/lp0'
 
-def generate_aztec(txt): 
+def generate_aztec(txt):
 
   logo = Image.open('why-logo-24mm.png')
   logo = logo.convert('L').point( lambda p: 255 if p > 150 else 0 ).convert('1')
@@ -14,15 +14,15 @@ def generate_aztec(txt):
   zint = subprocess.run(['zint', '--barcode', '92', '--vers', '4', '--scale', '2.5', '--direct', '--data', txt], capture_output=True)
   if zint.returncode != 0:
     print(f'Zint error. Return code:{zint.returncode}\nStdErr: {zint.stderr}\nStdOut: {zint.stdout}')
-    os.exit(42)
+    os.exit(101)
 
   barcode = Image.open(io.BytesIO(zint.stdout))
 
-  im = Image.new('1', (160, 220))
+  im = Image.new('1', (144, 240))
   im.paste(1, (0, 0) + im.size)
 
   im.paste(logo, ((im.size[0]-logo.size[0])//2, 0))
-  im.paste(barcode, ((im.size[0]-barcode.size[0])//2, logo.size[1]+8))
+  im.paste(barcode, ((im.size[0]-barcode.size[0])//2, logo.size[1] + 4))
 
   draw = ImageDraw.Draw(im)
 
@@ -32,33 +32,35 @@ def generate_aztec(txt):
     print(firacode.size)
     firacode = ImageFont.truetype('FiraCode-Medium.ttf', size=firacode.size*0.99)
 
-  draw.text((im.size[0]/2, logo.size[1]+barcode.size[1]+4), txt, fill=0, font=firacode, anchor='ma')
+  draw.text((im.size[0]/2, logo.size[1]+barcode.size[1] + 6), txt, fill=0, font=firacode, anchor='ma')
+
+  im = im.transpose(Image.Transpose.ROTATE_90)
 
   return im
 
-def generate_code128(txt): 
+def generate_code128(txt):
 
   logo = Image.open('why-logo-12mm.png')
   logo = logo.convert('L').point( lambda p: 255 if p > 150 else 0 ).convert('1')
 
-  zint = subprocess.run(['zint', '--barcode', '20', '--scale', '0.5', '--height', '60', '--direct', '--notext', '--data', txt], capture_output=True)
+  zint = subprocess.run(['zint', '--barcode', '20', '--scale', '0.5', '--height', '54', '--direct', '--notext', '--data', txt], capture_output=True)
   if zint.returncode != 0:
     print(f'Zint error. Return code:{zint.returncode}\nStdErr: {zint.stderr}\nStdOut: {zint.stdout}')
-    os.exit(42)
+    os.exit(102)
 
   barcode = Image.open(io.BytesIO(zint.stdout))
   
-  im = Image.new('1', (logo.size[0] + 4 + barcode.size[0], 80))
+  im = Image.new('1', (logo.size[0] + 4 + barcode.size[0], 128))
   im.paste(1, (0, 0) + im.size)
 
-  im.paste(logo, (0, (im.size[1]-logo.size[1])//2))
-  im.paste(barcode, (logo.size[0] + 4, 0))
+  im.paste(logo, (0, ((im.size[1]-logo.size[1])//2)))
+  im.paste(barcode, (logo.size[0] + 4, 24))
 
   draw = ImageDraw.Draw(im)
 
   firacode = ImageFont.truetype('FiraCode-Medium.ttf', size=18)
 
-  draw.text((logo.size[0] + 4 + barcode.size[0]/2, barcode.size[1]), txt, fill=0, font=firacode, anchor='ma')
+  draw.text((logo.size[0] + 4 + barcode.size[0]/2, 24 + barcode.size[1] + 2), txt, fill=0, font=firacode, anchor='ma')
 
   return im
 
@@ -103,7 +105,15 @@ if __name__ == '__main__':
     print(f'Cannot print {sys.argv[1]} code on {label_size}mm tape.')
     sys.exit(4)
 
+  imgs = []
   for txt in sys.argv[2:]:
     im = generate_label(txt)
+    tmp = tempfile.NamedTemporaryFile()
+    im.save(tmp, 'PPM')
+    imgs.append(tmp.name)
 
-    im.show()
+  ptouch = subprocess.run(['./ptouch-770/ptouch-770-write', '0'] + [imgs], capture_output=True)
+  if ptouch.returncode != 0:
+    print(f'ptouch error. Return code:{ptouch.returncode}')
+    print(f'StdErr: {ptouch.stderr.decode("ascii")}\nStdOut: {ptouch.stdout.decode("ascii")}')
+    sys.exit(5)
