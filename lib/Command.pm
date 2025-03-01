@@ -266,11 +266,11 @@ class Command::print is Command::List {
 
         given $type {
             when 1 | 'barcode' | 'barcode ' {
-                run './barcode.sh', 'code128', @stack.map: *.id;
+                run './barcode.py', 'code128', @stack.map: *.id;
                 #~ print "Printing barcode{ @stack > 1 ?? "s" !! "" }...\n\n";
             }
             when 2 | 'aztec' | 'aztec ' {
-                run './barcode.sh', 'aztec', @stack.map: *.id;
+                run './barcode.py', 'aztec', @stack.map: *.id;
                 #~ print "Printing square code{ @stack > 1 ?? "s" !! "" }...\n\n";
             }
             when 3 | 'text' | 'text ' {
