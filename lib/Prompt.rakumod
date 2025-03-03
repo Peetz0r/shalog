@@ -40,7 +40,7 @@ my $readline-so = BEGIN {
 }
 
 
-my $rl_point := cglobal($readline-so, 'rl_point', int);
+my $rl_point := cglobal($readline-so, 'rl_point', int32);
 
 state $tabstate;
 
