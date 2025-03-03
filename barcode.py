@@ -96,7 +96,7 @@ if __name__ == '__main__':
     print('Missing label tape')
     sys.exit(3)
   
-  if sys.argv[1] == 'aztec' and label_size == 24:
+  if sys.argv[1] == 'aztec' and label_size >= 18:
     generate_label = generate_aztec
   elif sys.argv[1] == 'code128' and label_size == 12:
     generate_label = generate_code128
