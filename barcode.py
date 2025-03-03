@@ -28,7 +28,7 @@ def generate_aztec(txt):
 
   firacode = ImageFont.truetype('FiraCode-Medium.ttf', size=30)
 
-  while draw.textlength(txt, firacode) > 124:
+  while '\n' not in txt and draw.textlength(txt, firacode) > 124:
     firacode = ImageFont.truetype('FiraCode-Medium.ttf', size=firacode.size*0.99)
 
   draw.text((im.size[0]/2, logo.size[1]+barcode.size[1] + 6), txt, fill=0, font=firacode, anchor='ma')
