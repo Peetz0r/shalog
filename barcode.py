@@ -13,7 +13,8 @@ def generate_aztec(txt):
 
   zint = subprocess.run(['zint', '--barcode', '92', '--vers', '8', '--scale', '2', '--direct', '--data', txt], capture_output=True)
   if zint.returncode != 0:
-    print(f'Zint error. Return code:{zint.returncode}\nStdErr: {zint.stderr}\nStdOut: {zint.stdout}')
+    print(f'Zint error. Return code: \033[96m\033[1m{zint.returncode}\033[0m', file=sys.stderr)
+    print(f'\nStdErr: {zint.stderr}\nStdOut: {zint.stdout}', file=sys.stderr)
     os.exit(101)
 
   barcode = Image.open(io.BytesIO(zint.stdout))
@@ -44,7 +45,8 @@ def generate_code128(txt):
 
   zint = subprocess.run(['zint', '--barcode', '20', '--scale', '0.5', '--height', '48', '--direct', '--notext', '--data', txt], capture_output=True)
   if zint.returncode != 0:
-    print(f'Zint error. Return code:{zint.returncode}\nStdErr: {zint.stderr}\nStdOut: {zint.stdout}')
+    print(f'Zint error. Return code: \033[96m\033[1m{zint.returncode}\033[0m', file=sys.stderr)
+    print(f'\nStdErr: {zint.stderr}\nStdOut: {zint.stdout}', file=sys.stderr)
     os.exit(102)
 
   barcode = Image.open(io.BytesIO(zint.stdout))
@@ -83,17 +85,17 @@ if __name__ == '__main__':
   
   printers = glob.glob(PRINTER_GLOB)
   if len(printers) < 1:
-    print(f'Printer not found: no matches for {PRINTER_GLOB}')
+    print(f'Printer not found: no matches for \033[96m\033[1m{PRINTER_GLOB}\033[0m', file=sys.stderr)
     sys.exit(2)
     
   printer = printers[0]
 
   if len(printers) > 1:
-    print(f'{len(printers)} printers found, picking {printer}')
+    print(f'{len(printers)} printers found, picking \033[96m\033[1m{printer}\033[0m')
   
   label_size = get_label_size()
   if label_size == 0:
-    print('Missing label tape')
+    print('Missing label tape', file=sys.stderr)
     sys.exit(3)
   
   if sys.argv[1] == 'aztec' and label_size >= 18:
@@ -101,7 +103,7 @@ if __name__ == '__main__':
   elif sys.argv[1] == 'code128' and label_size == 12:
     generate_label = generate_code128
   else:
-    print(f'Cannot print {sys.argv[1]} code on {label_size}mm tape.')
+    print(f'Cannot print {sys.argv[1]} code on \033[96m\033[1m{label_size}mm\033[0m tape.', file=sys.stderr)
     sys.exit(4)
 
   imgs = []
@@ -113,6 +115,6 @@ if __name__ == '__main__':
 
   ptouch = subprocess.run(['./ptouch-770/ptouch-770-write', '0'] + [i.name for i in imgs], capture_output=True)
   if ptouch.returncode != 0:
-    print(f'ptouch error. Return code:{ptouch.returncode}')
-    print(f'StdErr: {ptouch.stderr.decode("ascii")}\nStdOut: {ptouch.stdout.decode("ascii")}')
+    print(f'ptouch-770 error. Return code: \033[96m\033[1m{ptouch.returncode}\033[0m', file=sys.stderr)
+    print(f'StdErr: {ptouch.stderr.decode("ascii")}\nStdOut: {ptouch.stdout.decode("ascii")}', file=sys.stderr)
     sys.exit(5)
