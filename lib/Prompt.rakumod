@@ -26,7 +26,7 @@ my $readline-so = BEGIN {
     $rl.insert-text("detect");
     for "libreadline.so." X~ (5..8).reverse -> $lib {
         #put $lib;
-        try my $x := cglobal($lib, "rl_end", int);
+        try my $x := cglobal($lib, "rl_end", int32);
         $x or next;
         if $x == 6 {
             $found = $lib;
