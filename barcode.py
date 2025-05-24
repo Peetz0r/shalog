@@ -38,6 +38,25 @@ def generate_aztec(txt):
 
   return im
 
+def generate_tiny(txt):
+
+  zint = subprocess.run(['zint', '--barcode', '92', '--vers', '10', '--scale', '1.5', '--direct', '--data', txt], capture_output=True)
+  if zint.returncode != 0:
+    print(f'Zint error. Return code: \033[96m\033[1m{zint.returncode}\033[0m', file=sys.stderr)
+    print(f'\nStdErr: {zint.stderr}\nStdOut: {zint.stdout}', file=sys.stderr)
+    os.exit(101)
+
+  barcode = Image.open(io.BytesIO(zint.stdout))
+
+  im = Image.new('1', (128, barcode.size[1]))
+  im.paste(1, (0, 0) + im.size)
+
+  im.paste(barcode, ((im.size[0]-barcode.size[0])//2, 0))
+
+  im = im.transpose(Image.Transpose.ROTATE_90)
+
+  return im
+
 def generate_code128(txt):
 
   logo = Image.open('why-logo-12mm.png')
@@ -82,10 +101,11 @@ if __name__ == '__main__':
     debug = True
     sys.argv.remove('-d')
 
-  if len(sys.argv) < 3 or sys.argv[1] not in ['aztec', 'code128']:
-    print(f'Usage: {sys.argv[0]} [-d] {{aztec|code128}} <text> ...')
+  if len(sys.argv) < 3 or sys.argv[1] not in ['aztec', 'tiny', 'code128']:
+    print(f'Usage: {sys.argv[0]} [-d] {{aztec|tiny|code128}} <text> ...')
     print(f'  -d        display (instead of print) the barcode')
     print(f'  aztec     square 2d barcode')
+    print(f'  tiny      very small 2d barcode (without text)')
     print(f'  code128   long 1d barcode')
     print(f'  <text>    text to be encoded in the barcode')
     sys.exit(1)
@@ -107,6 +127,8 @@ if __name__ == '__main__':
 
   if sys.argv[1] == 'aztec' and (debug or label_size >= 18):
     generate_label = generate_aztec
+  elif sys.argv[1] == 'tiny' and (debug or label_size == 12):
+    generate_label = generate_tiny
   elif sys.argv[1] == 'code128' and (debug or label_size == 12):
     generate_label = generate_code128
   else:

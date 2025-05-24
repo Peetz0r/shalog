@@ -252,28 +252,33 @@ class Command::print is Command::List {
         print qq:to/END/;
 
         What kind of labels do you want?
-        '1' or 'barcode':   Linear 1D barcodes (12mm: screwdrivers etc.)
-        '2' or 'aztec':     Square 2D codes (24mm: redundant, recommended)
-        '3' or 'text':      Just text (not yet implemented)
+        '1' or 'long':      Linear 1D barcodes (12mm: screwdrivers etc.)
+        '2' or 'aztec':     Large square 2D codes (18 or 24mm: redundant, recommended)
+        '3' or 'tiny':      Small square 2D codes (12mm: redundant, smaller, no text)
+        '4' or 'text':      Just text (not yet implemented)
         '0' or 'ignore':    Don't print any barcodes
         END
 
         my $type = prompt(
             yellow("label> ") ~ white,
-            :tab<barcode aztec text ignore>
+            :tab<long aztec tiny text ignore>
         ) until $type.defined;
         reset-color;
 
         given $type {
-            when 1 | 'barcode' | 'barcode ' {
+            when 1 | 'long' | 'long ' {
                 run './barcode.py', 'code128', @stack.map: *.id or die 'Could not print barcode.';
                 print "Printing barcode{ @stack > 1 ?? "s" !! "" }...\n\n";
             }
             when 2 | 'aztec' | 'aztec ' {
                 run './barcode.py', 'aztec', @stack.map: *.id or die 'Could not print barcode.';
-                print "Printing square code{ @stack > 1 ?? "s" !! "" }...\n\n";
+                print "Printing large square code{ @stack > 1 ?? "s" !! "" }...\n\n";
             }
-            when 3 | 'text' | 'text ' {
+            when 3 | 'tiny' | 'tiny ' {
+                run './barcode.py', 'tiny', @stack.map: *.id or die 'Could not print barcode.';
+                print "Printing small square code{ @stack > 1 ?? "s" !! "" }...\n\n";
+            }
+            when 4 | 'text' | 'text ' {
                 die "Text barcodes are not yet implemented.";
             }
             when 0 | 'ignore' | 'ignore ' {
