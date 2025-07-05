@@ -1,12 +1,12 @@
 #!/usr/bin/python3 -u
 
-import glob, json, pprint, paho.mqtt.publish, inotify_simple
+import glob, json, pprint, paho.mqtt.publish, inotify_simple, configparser
 
-with open('stats-config.json') as f:
-  config = json.load(f)
+config = configparser.ConfigParser()
+config.read("config.ini")
 
 def post_stats():
-  files = glob.glob(config['db']+'/*.json')
+  files = glob.glob(config['db']['db']+'/*.json')
 
   numTotalThings = 0
   numUnusedThings = 0
@@ -59,27 +59,27 @@ def post_stats():
 
 
   msgs = [
-    {'topic': config['topicPrefix'] + '/numTotalThings', 'payload': numTotalThings},
-    {'topic': config['topicPrefix'] + '/numUnusedThings', 'payload': numUnusedThings},
-    {'topic': config['topicPrefix'] + '/numTotalLoans', 'payload': numTotalLoans},
-    {'topic': config['topicPrefix'] + '/numCurrentLoans', 'payload': numCurrentLoans},
-    {'topic': config['topicPrefix'] + '/numTotalAngels', 'payload': numTotalAngels},
-    {'topic': config['topicPrefix'] + '/numActiveAngels', 'payload': numActiveAngels},
-    {'topic': config['topicPrefix'] + '/numBusyAngels', 'payload': numBusyAngels}
+    {'topic': config['stats']['topicPrefix'] + '/numTotalThings', 'payload': numTotalThings},
+    {'topic': config['stats']['topicPrefix'] + '/numUnusedThings', 'payload': numUnusedThings},
+    {'topic': config['stats']['topicPrefix'] + '/numTotalLoans', 'payload': numTotalLoans},
+    {'topic': config['stats']['topicPrefix'] + '/numCurrentLoans', 'payload': numCurrentLoans},
+    {'topic': config['stats']['topicPrefix'] + '/numTotalAngels', 'payload': numTotalAngels},
+    {'topic': config['stats']['topicPrefix'] + '/numActiveAngels', 'payload': numActiveAngels},
+    {'topic': config['stats']['topicPrefix'] + '/numBusyAngels', 'payload': numBusyAngels}
   ]
 
-  paho.mqtt.publish.multiple(msgs, hostname=config['host'], auth={'username': config['user'], 'password': config['pass']})
+  paho.mqtt.publish.multiple(msgs, hostname=config['stats']['host'], auth={'username': config['stats']['user'], 'password': config['stats']['pass']})
 
-  print(f"Posted to {config['host']} {config['topicPrefix']}")
+  print(f"Posted to {config['stats']['host']} {config['stats']['topicPrefix']}")
   print('='*40)
 
 post_stats()
 
 inotify = inotify_simple.INotify()
 watch_flags = inotify_simple.flags.CREATE | inotify_simple.flags.MODIFY | inotify_simple.flags.DELETE
-wd = inotify.add_watch(config['db'], watch_flags)
+wd = inotify.add_watch(config['db']['db'], watch_flags)
 
-print(f"Watching {config['db']} for stats")
+print(f"Watching {config['db']['db']} for stats")
 
 while True:
   for event in inotify.read(read_delay=1000):

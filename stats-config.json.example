@@ -1,7 +1,0 @@
-{
-  "db": "./db",
-  "host": "mqtt.mch2022.org",
-  "user": "warehouse",
-  "pass": "lol not in the git repo",
-  "topicPrefix": "mch2022/warehouse"
-}

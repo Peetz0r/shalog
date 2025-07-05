@@ -2,8 +2,8 @@
 Description=Shalog stats service
 
 [Service]
-WorkingDirectory=/home/tracking/shalog/
-ExecStart=/home/tracking/shalog/stats.py
+WorkingDirectory=%h/shalog/
+ExecStart=%h/shalog/stats.py
 
 [Install]
 WantedBy=default.target
