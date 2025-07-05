@@ -1,0 +1,9 @@
+[Unit]
+Description=Shalog stats service
+
+[Service]
+WorkingDirectory=%h/shalog/
+ExecStart=%h/shalog/odarissync.py
+
+[Install]
+WantedBy=default.target

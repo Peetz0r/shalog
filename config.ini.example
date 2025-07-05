@@ -6,3 +6,8 @@ host=mqtt.why2025.org
 user=warehouse
 pass=lol not in the git repo
 topicPrefix=why2025/warehouse
+
+[odarissy]
+url=https://odarissy.eu/api
+token=lol not in the git repo
+prefix=702615
