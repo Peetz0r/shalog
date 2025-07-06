@@ -47,9 +47,12 @@ def update_trackers(filter=None):
       if shalog_device['location'] == 'lhq-returns':
         location = id
         print(f'{id} found at lhq-returns, resetting to "{id}"...')
+      elif odarissy_device['name'] == location:
+        print(f'{id} found, already set to "{location}", skipping...')
+        continue
       else:
         print(f'{id} found, setting to "{location}"')
-      
+
       odarissy_device['name'] = location
       r = session.put(f'{config["odarissy"]["url"]}/devices/{odarissy_device["id"]}', json=odarissy_device)
 
