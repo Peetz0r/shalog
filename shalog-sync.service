@@ -1,5 +1,5 @@
 [Unit]
-Description=Shalog sync service
+Description=Shalog onsite synchronisation service
 
 [Service]
 Type=oneshot

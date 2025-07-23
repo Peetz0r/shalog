@@ -1,5 +1,5 @@
 [Unit]
-Description=Shalog stats service
+Description=Shalog odarissync service
 
 [Service]
 WorkingDirectory=%h/shalog/

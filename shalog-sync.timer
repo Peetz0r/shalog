@@ -1,5 +1,5 @@
 [Unit]
-Description=shalog sync
+Description=Shalog onsite synchronisation service
 
 [Timer]
 OnCalendar=*:0/1
