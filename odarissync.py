@@ -39,25 +39,40 @@ def update_trackers(filter=None):
       continue
       
     with open(f'{config["db"]["db"]}/{id}.json') as f:
-      shalog_device = json.load(f)
-      
-      if 'comment' not in shalog_device:
-        print(f'{id} found in shalog without comment, skipping...')
+      shalog_thing = json.load(f)
+
+      if 'location' not in shalog_thing:
+        print(f'{id} found in shalog without location, skipping...')
         continue
 
-      location = shalog_device['comment']
+      loc = shalog_thing["location"]
 
-      if shalog_device['comment'] == '':
-        location = id
-        print(f'{id} has empty comment, resetting to "{id}"...')
-      elif odarissy_device['name'] == location:
-        print(f'{id} found, already set to "{location}", skipping...')
+      if not os.path.exists(f'{config["db"]["db"]}/{loc}.json'.lower()):
+        print(f'{id} found at {loc}, but that does not exist, skipping...')
         continue
-      else:
-        print(f'{id} found, setting to "{location}"')
 
-      odarissy_device['name'] = location
-      r = session.put(f'{config["odarissy"]["url"]}/devices/{odarissy_device["id"]}', json=odarissy_device)
+      print(f'{id} found at {loc}', end=', ')
+
+      with open(f'{config["db"]["db"]}/{loc}.json'.lower()) as f2:
+        shalog_parent_thing = json.load(f2)
+
+        if 'comment' not in shalog_parent_thing:
+          print(f'{loc} found in shalog without comment, skipping...')
+          continue
+
+        label = shalog_parent_thing['comment']
+
+        if shalog_parent_thing['comment'] == '':
+          label = id
+          print(f'has empty comment, resetting to "{id}"...')
+        elif odarissy_device['name'] == label:
+          print(f'already set to "{label}", skipping...')
+          continue
+        else:
+          print(f'setting to "{label}"')
+
+        odarissy_device['name'] = label
+        r = session.put(f'{config["odarissy"]["url"]}/devices/{odarissy_device["id"]}', json=odarissy_device)
 
 
 update_trackers()
