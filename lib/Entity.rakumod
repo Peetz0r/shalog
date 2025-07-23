@@ -46,7 +46,7 @@ class Entity {
             %hash<location> = $location;
         }
 
-        %hash<class> ~~ /^ [ Thing | Container | Person | Place ] $/
+        %hash<class> ~~ /^ [ Thing | Container | TrackedVehicle | Person | Place ] $/
             or die "Invalid class '%hash<class>' for %hash<id>";
 
         return %hash;
@@ -184,9 +184,10 @@ role Lendable {
 class Person    is Entity does Location {
     has $.groups is rw;
 }
-class Place     is Entity does Location { }
-class Thing     is Entity does Lendable { }
-class Container is Entity does Lendable does Location { }
+class Place           is Entity does Location { }
+class Thing           is Entity does Lendable { }
+class Container       is Entity does Lendable does Location { }
+class TrackedVehicle  is Entity does Lendable does Location { }
 use MONKEY-TYPING;
 
 augment class Entity {
@@ -198,6 +199,7 @@ augment class Entity {
         '2' or 'person':    Register '$id' as a new person.
         '3' or 'place':     Register '$id' as a new place.
         '4' or 'container': Register '$id' as a new container.
+        '5' or 'vehicle':   Register '$id' as a new tracked vehicle.
         '0' or 'ignore':    Ignore this input (typo, scan error, etc.)
         END
 
@@ -206,6 +208,7 @@ augment class Entity {
             2 | 'person'    => Person,
             3 | 'place'     => Place,
             4 | 'container' => Container,
+            4 | 'vehicle'   => TrackedVehicle,
             0 | 'ignore'    => Any;
 
         loop {
