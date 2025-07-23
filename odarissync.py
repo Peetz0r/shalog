@@ -38,15 +38,15 @@ def update_trackers(filter=None):
     with open(f'{config["db"]["db"]}/{id}.json') as f:
       shalog_device = json.load(f)
       
-      if 'location' not in shalog_device:
-        print(f'{id} found in shalog without location, skipping...')
+      if 'comment' not in shalog_device:
+        print(f'{id} found in shalog without comment, skipping...')
         continue
 
-      location = re.sub('[-#]', ' ', shalog_device['location']).capitalize()
+      location = shalog_device['comment']
 
-      if shalog_device['location'] == 'lhq-returns':
+      if shalog_device['comment'] == '':
         location = id
-        print(f'{id} found at lhq-returns, resetting to "{id}"...')
+        print(f'{id} has empty comment, resetting to "{id}"...')
       elif odarissy_device['name'] == location:
         print(f'{id} found, already set to "{location}", skipping...')
         continue
