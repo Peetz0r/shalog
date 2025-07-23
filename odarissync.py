@@ -29,6 +29,9 @@ def update_trackers(filter=None):
     if filter and id not in filter:
       continue
 
+    if not id.startswith(config['odarissy']['prefix']):
+      continue
+
     if not os.path.exists(f'{config["db"]["db"]}/{id}.json'):
       print(f'{id} found in odarissy but not in shalog, creating...')      
       with open(f'{config["db"]["db"]}/{id}.json', 'w') as f:
