@@ -10,7 +10,7 @@ session.headers = {
   'Authorization': f'Bearer {config["odarissy"]["token"]}',
 }
 
-def update_trackers(filter=None):
+def update_trackers():
   r = session.get(f'{config["odarissy"]["url"]}/devices')
   
   if r.status_code >= 400:
@@ -25,9 +25,6 @@ def update_trackers(filter=None):
   
   for odarissy_device in odarissy_devices:
     id = odarissy_device['uniqueId']
-
-    if filter and id not in filter:
-      continue
 
     if not id.startswith(config['odarissy']['prefix']):
       continue
@@ -86,7 +83,6 @@ print(f'Watching {config["db"]["db"]} for stats')
 
 while True:
   for event in inotify.read(read_delay=250):
-    if event.name.startswith(config['odarissy']['prefix']):
-      print(event, inotify_simple.flags.from_mask(event.mask))
-      update_trackers(event.name)
+    print(event, inotify_simple.flags.from_mask(event.mask))
+    update_trackers()
 
