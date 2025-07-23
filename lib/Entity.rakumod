@@ -208,7 +208,7 @@ augment class Entity {
             2 | 'person'    => Person,
             3 | 'place'     => Place,
             4 | 'container' => Container,
-            4 | 'vehicle'   => TrackedVehicle,
+            5 | 'vehicle'   => TrackedVehicle,
             0 | 'ignore'    => Any;
 
         loop {
