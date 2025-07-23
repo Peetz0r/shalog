@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/bin/python3 -u
 
 import requests, glob, json, configparser, re, sys, os, inotify_simple
 
