@@ -1,4 +1,4 @@
-#!/bin/python3 -u
+#!/usr/bin/env -S python3 -u
 
 import requests, glob, json, configparser, re, sys, os, inotify_simple
 
@@ -85,4 +85,3 @@ while True:
   for event in inotify.read(read_delay=250):
     print(event, inotify_simple.flags.from_mask(event.mask))
     update_trackers()
-
