@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -u
+#!/usr/bin/env -S python3 -u
 
 import glob, json, pprint, paho.mqtt.publish, inotify_simple, configparser
 

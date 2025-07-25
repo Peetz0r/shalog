@@ -1,4 +1,4 @@
-#!/usr/bin/raku
+#!/usr/bin/env raku
 
 use v6;
 use lib ~$*PROGRAM.resolve.sibling: 'lib';
@@ -133,4 +133,3 @@ loop {
         default { note red "Unexpected exception: $_.gist()\n" }
     }
 }
-
