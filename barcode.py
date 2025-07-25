@@ -22,8 +22,8 @@ def generate_aztec(txt):
   im = Image.new('1', (128, 214))
   im.paste(1, (0, 0) + im.size)
 
-  im.paste(logo, ((im.size[0]-logo.size[0])//2, 0))
-  im.paste(barcode, ((im.size[0]-barcode.size[0])//2, logo.size[1] + 2))
+  im.paste(logo, ((im.width-logo.width)//2, 0))
+  im.paste(barcode, ((im.width-barcode.width)//2, logo.height + 2))
 
   draw = ImageDraw.Draw(im)
 
@@ -32,7 +32,7 @@ def generate_aztec(txt):
   while '\n' not in txt and draw.textlength(txt, firacode) > 124:
     firacode = ImageFont.truetype('FiraCode-Medium.ttf', size=firacode.size*0.99)
 
-  draw.text((im.size[0]/2, logo.size[1]+barcode.size[1] + 6), txt, fill=0, font=firacode, anchor='ma')
+  draw.text((im.width/2, logo.height+barcode.height + 6), txt, fill=0, font=firacode, anchor='ma')
 
   im = im.transpose(Image.Transpose.ROTATE_90)
 
@@ -48,10 +48,10 @@ def generate_tiny(txt):
 
   barcode = Image.open(io.BytesIO(zint.stdout))
 
-  im = Image.new('1', (128, barcode.size[1]))
+  im = Image.new('1', (128, barcode.height))
   im.paste(1, (0, 0) + im.size)
 
-  im.paste(barcode, ((im.size[0]-barcode.size[0])//2, 0))
+  im.paste(barcode, ((im.width-barcode.width)//2, 0))
 
   im = im.transpose(Image.Transpose.ROTATE_90)
 
@@ -70,17 +70,17 @@ def generate_code128(txt):
 
   barcode = Image.open(io.BytesIO(zint.stdout))
   
-  im = Image.new('1', (logo.size[0] + 4 + barcode.size[0], 128))
+  im = Image.new('1', (logo.width + 4 + barcode.width, 128))
   im.paste(1, (0, 0) + im.size)
 
-  im.paste(logo, (0, ((im.size[1]-logo.size[1])//2)))
-  im.paste(barcode, (logo.size[0] + 2, 29))
+  im.paste(logo, (0, ((im.height-logo.height)//2)))
+  im.paste(barcode, (logo.width + 2, 29))
 
   draw = ImageDraw.Draw(im)
 
   firacode = ImageFont.truetype('FiraCode-Medium.ttf', size=18)
 
-  draw.text((logo.size[0] + 4 + barcode.size[0]/2, 29 + barcode.size[1] + 1), txt, fill=0, font=firacode, anchor='ma')
+  draw.text((logo.width + 4 + barcode.width/2, 29 + barcode.height + 1), txt, fill=0, font=firacode, anchor='ma')
 
   return im
 
