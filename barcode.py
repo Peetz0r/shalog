@@ -47,7 +47,6 @@ def generate_aztec(txt):
       chunkWidth = 0
       for c in list(txt):
         chunkWidth = draw.textlength(chunk + c, font)
-        print("chunk", chunk, "char", c, "width", chunkWidth)
         if chunkWidth > 124:
           lines.append(chunk)
           chunk = c
@@ -55,14 +54,11 @@ def generate_aztec(txt):
           chunk += c
       if len(chunk) > 0:
         lines.append(chunk)
-
-    print("split to lines", lines)
   
   extendLines = len(lines) - 1
   if extendLines >= 1:
     oldIm = im
     im = Image.new('1', (128, oldIm.height + FONT_SIZE * extendLines), color=1)
-    print(oldIm.width, oldIm.height, "extending", im.width, im.height)
     im.paste(oldIm)
     draw = ImageDraw.Draw(im)
 
