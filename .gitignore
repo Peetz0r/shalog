@@ -6,3 +6,4 @@ perl6-readline/
 stats-config.json
 node_modules
 config.ini
+.direnv
