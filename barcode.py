@@ -23,8 +23,8 @@ def generate_aztec(txt):
 
   barcode = Image.open(io.BytesIO(zint.stdout))
 
-  im = Image.new('1', (128, 214))
-  im.paste(1, (0, 0) + im.size)
+  im = Image.new('1', (128, 214), color=1)
+  # im.paste(1, (0, 0) + im.size)
 
   im.paste(logo, ((im.width-logo.width)//2, 0))
   im.paste(barcode, ((im.width-barcode.width)//2, logo.height + 2))
@@ -33,15 +33,16 @@ def generate_aztec(txt):
 
   font = ImageFont.truetype(FONT_FILE, size=20)
 
-  lines = [txt]
   txtWidth = draw.textlength(txt, font)
+  lines = [txt]
   if txtWidth > 124:
-    # first see if wrapping with name + #number on two lines is enough
-    (name, number) = txt.split('#', 1)
-    nameWidth = draw.textlength(name, font)
-    if nameWidth <= 124:
-      lines = [name, '#' + number]
-    else:
+    if '#' in txt:
+      # check if wrapping with name + #number on two lines is enough
+      (name, number) = txt.split('#', 1)
+      nameWidth = draw.textlength(name, font)
+      if nameWidth <= 124:
+        lines = [name, '#' + number]
+    if len(lines) == 1:
       lines = []
       chunk = ''
       chunkWidth = 0
@@ -78,8 +79,7 @@ def generate_tiny(txt):
 
   barcode = Image.open(io.BytesIO(zint.stdout))
 
-  im = Image.new('1', (128, barcode.height))
-  im.paste(1, (0, 0) + im.size)
+  im = Image.new('1', (128, barcode.height), color=1)
 
   im.paste(barcode, ((im.width-barcode.width)//2, 0))
 
@@ -89,28 +89,25 @@ def generate_tiny(txt):
 
 def generate_code128(txt):
 
-  logo = Image.open('why-logo-12mm.png')
-  logo = logo.convert('L').point( lambda p: 255 if p > 150 else 0 ).convert('1')
-
-  zint = subprocess.run(['zint', '--barcode', '20', '--scale', '0.5', '--height', '48', '--direct', '--notext', '--data', txt], capture_output=True)
+  zint = subprocess.run(['zint', '--barcode', '20', '--scale', '1', '--height', '50', '--direct', '--notext', '--data', txt], capture_output=True)
   if zint.returncode != 0:
     print(f'Zint error. Return code: \033[96m\033[1m{zint.returncode}\033[0m', file=sys.stderr)
     print(f'\nStdErr: {zint.stderr}\nStdOut: {zint.stdout}', file=sys.stderr)
     os.exit(102)
 
   barcode = Image.open(io.BytesIO(zint.stdout))
+  print("barcode", barcode.width, barcode.height)
   
-  im = Image.new('1', (logo.width + 4 + barcode.width, 128))
-  im.paste(1, (0, 0) + im.size)
+  im = Image.new('1', (barcode.width + 26, 128), color=1)
 
-  im.paste(logo, (0, ((im.height-logo.height)//2)))
-  im.paste(barcode, (logo.width + 2, 29))
+  im.paste(barcode, (13, 28))
 
   draw = ImageDraw.Draw(im)
+  draw.rectangle([0, 128 - 40, im.width, 128], fill=1)
 
-  firacode = ImageFont.truetype('FiraCode-Medium.ttf', size=18)
+  font = ImageFont.truetype(FONT_FILE, size=15.5)
 
-  draw.text((logo.width + 4 + barcode.width/2, 29 + barcode.height + 1), txt, fill=0, font=firacode, anchor='ma')
+  draw.text((im.width/2, 128 - 40), txt, fill=0, font=font, anchor='ma')
 
   return im
 
