@@ -4,11 +4,15 @@ import os, sys, io, subprocess, glob, tempfile
 
 from PIL import Image, ImageFont, ImageDraw
 
+ASSET_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'label-assets')
+FONT_FILE = ASSET_DIR + '/FiraCode-Medium.ttf'
+FONT_SIZE = 20 # px
+
 PRINTER_GLOB = '/dev/usb/lp0'
 
 def generate_aztec(txt):
 
-  logo = Image.open('why-logo-24mm.png')
+  logo = Image.open(ASSET_DIR + '/why-logo-24mm.png')
   logo = logo.convert('L').point( lambda p: 255 if p > 150 else 0 ).convert('1')
 
   zint = subprocess.run(['zint', '--barcode', '92', '--vers', '8', '--scale', '2', '--direct', '--data', txt], capture_output=True)
@@ -27,12 +31,42 @@ def generate_aztec(txt):
 
   draw = ImageDraw.Draw(im)
 
-  firacode = ImageFont.truetype('FiraCode-Medium.ttf', size=30)
+  font = ImageFont.truetype(FONT_FILE, size=20)
 
-  while '\n' not in txt and draw.textlength(txt, firacode) > 124:
-    firacode = ImageFont.truetype('FiraCode-Medium.ttf', size=firacode.size*0.99)
+  lines = [txt]
+  txtWidth = draw.textlength(txt, font)
+  if txtWidth > 124:
+    # first see if wrapping with name + #number on two lines is enough
+    (name, number) = txt.split('#', 1)
+    nameWidth = draw.textlength(name, font)
+    if nameWidth <= 124:
+      lines = [name, '#' + number]
+    else:
+      lines = []
+      chunk = ''
+      chunkWidth = 0
+      for c in list(txt):
+        chunkWidth = draw.textlength(chunk + c, font)
+        print("chunk", chunk, "char", c, "width", chunkWidth)
+        if chunkWidth > 124:
+          lines.append(chunk)
+          chunk = c
+        else:
+          chunk += c
+      if len(chunk) > 0:
+        lines.append(chunk)
 
-  draw.text((im.width/2, logo.height+barcode.height + 6), txt, fill=0, font=firacode, anchor='ma')
+    print("split to lines", lines)
+  
+  extendLines = len(lines) - 1
+  if extendLines >= 1:
+    oldIm = im
+    im = Image.new('1', (128, oldIm.height + FONT_SIZE * extendLines), color=1)
+    print(oldIm.width, oldIm.height, "extending", im.width, im.height)
+    im.paste(oldIm)
+    draw = ImageDraw.Draw(im)
+
+  draw.multiline_text((im.width/2, logo.height + barcode.height + 6), '\n'.join(lines), fill=0, font=font, anchor='ma', align='center')
 
   im = im.transpose(Image.Transpose.ROTATE_90)
 
