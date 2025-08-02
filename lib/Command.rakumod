@@ -12,6 +12,7 @@ class Command::stays-there { ... }
 class Command::abort { ... }
 class Command::help { ... }
 class Command::info { ... }
+class Command::overview { ... }
 class Command::edit-metadata { ... }
 class Command::clear { ... }
 class Command::create { ... }
@@ -28,6 +29,7 @@ class Command {
         'abort' | 'cancel'           => Command::abort,
         'help' | '?'                 => Command::help,
         'info'                       => Command::info,
+        'overview'                   => Command::overview,
         'edit-metadata'              => Command::edit-metadata,
         'clear'                      => Command::clear,
         'create' | 'new' | 'adduser' => Command::create,
@@ -183,6 +185,18 @@ class Command::info is Command::Unary {
         given $entity {
             .print-contents when Location;
             .print-location when Lendable;
+        }
+    }
+}
+
+class Command::overview is Command::Immediate {
+    method execute(@) {
+        Entity.all-entities».update;
+
+        my Entity @people = Entity.all-entities.grep(Person);
+
+        for @people -> $person {
+            $person.print-contents(:quiet, :hidePermanent, :addNewline);
         }
     }
 }

@@ -120,15 +120,21 @@ class Entity {
 }
 
 role Location {
-    method print-contents {
+    method print-contents(Bool :$quiet = False, Bool :$hidePermanent = False, Bool :$addNewline = False) {
         Entity.all-entities».update;
 
         my Entity @items = Entity.all-entities.grep(Lendable)
             .grep({ .location && .location.id.lc eq $.id.lc });
+        
+        @items .= grep(not *.stays) if $hidePermanent;
+        
+        return if $quiet and not @items;
 
         put "{ self } has { +@items } {
             @items == 0 ?? 'items.' !! @items == 1 ?? 'item:' !! 'items:' }";
         put yellow("* "), $_, (.stays ?? " (permanent)" !! "") for @items;
+
+        put() if $addNewline;
     }
 }
 
