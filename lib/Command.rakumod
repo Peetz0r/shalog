@@ -322,7 +322,7 @@ class Command::restore is Command::Immediate {
 class Command::edit-metadata is Command::Unary {
     method execute (Entity $entity) {
         use Prompt;
-        my @groups = <teamlead driver manitou>;
+        my @groups = Entity.all-entities».?groups.grep({.defined && .chars}).unique;
         my %tab = groups => @groups,
                   requires-groups => @groups;
 
