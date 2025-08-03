@@ -13,6 +13,7 @@ class Command::abort { ... }
 class Command::help { ... }
 class Command::info { ... }
 class Command::overview { ... }
+class Command::history { ... }
 class Command::edit-metadata { ... }
 class Command::clear { ... }
 class Command::create { ... }
@@ -30,6 +31,7 @@ class Command {
         'help' | '?'                 => Command::help,
         'info'                       => Command::info,
         'overview'                   => Command::overview,
+        'history'                    => Command::history,
         'edit-metadata'              => Command::edit-metadata,
         'clear'                      => Command::clear,
         'create' | 'new' | 'adduser' => Command::create,
@@ -197,6 +199,15 @@ class Command::overview is Command::Immediate {
 
         for @people -> $person {
             $person.print-contents(:quiet, :hidePermanent, :addNewline);
+        }
+    }
+}
+
+class Command::history is Command::Unary {
+    method execute(Entity $entity) {
+        given $entity {
+            .print-lending-history when Location;
+            .print-location(:10max) when Lendable;
         }
     }
 }

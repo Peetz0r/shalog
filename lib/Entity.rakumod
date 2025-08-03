@@ -136,6 +136,21 @@ role Location {
 
         put() if $addNewline;
     }
+
+    method print-lending-history() {
+        Entity.all-entities».update;
+
+        my @mine = gather {
+            for Entity.all-entities.grep(Lendable) -> $item {
+                next if not $item.location_history;
+                for $item.location_history -> $entry {
+                    take [$entry<dt>, $item.id, $item.location.id.lc ne $.id.lc ] if ($entry<location> && $entry<location>.lc eq $.id.lc);
+                }
+            }
+        }
+
+        say "$_[0] $_[1]" ~ ($_[2] ?? (yellow " (returned)") !! "" ) for @mine.sort({ $_[0] });
+    }
 }
 
 role Lendable {
@@ -162,14 +177,13 @@ role Lendable {
         return $.location.would-loop: $to-be-contained;
     }
 
-    method print-location (Bool :$history = True) {
+    method print-location (Bool :$history = True, Int :$max = 5) {
         without $!location {
             put "The location for { self } is unknown.";
             return;
         }
 
         if ($history and $!location_history.elems) {
-            my $max = 5;
             my @prev = @($!location_history)».{'location'}.squish;
             # These are just id's, but the pretty printing with type is not
             # wanted here anyway.
