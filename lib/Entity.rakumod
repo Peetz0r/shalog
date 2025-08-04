@@ -149,7 +149,10 @@ role Location {
             }
         }
 
-        say "$_[0] $_[1]" ~ ($_[2] ?? (yellow " (returned)") !! "" ) for @mine.sort({ $_[0] });
+        for @mine.sort({ $_[0] }) {
+            my $dt = DateTime.new($_[0]);
+            say "  {$dt.year.fmt('%.2d')}-{$dt.month.fmt('%.2d')}-{$dt.day.fmt('%.2d')} {$dt.hh-mm-ss} $_[1]" ~  ($_[2] ?? (yellow " (returned)") !! "" );
+        }
     }
 }
 
