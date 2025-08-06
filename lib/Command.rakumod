@@ -14,6 +14,7 @@ class Command::help { ... }
 class Command::info { ... }
 class Command::overview { ... }
 class Command::history { ... }
+class Command::tail { ... }
 class Command::edit-metadata { ... }
 class Command::clear { ... }
 class Command::create { ... }
@@ -32,6 +33,7 @@ class Command {
         'info'                       => Command::info,
         'overview'                   => Command::overview,
         'history'                    => Command::history,
+        'tail'                       => Command::tail,
         'edit-metadata'              => Command::edit-metadata,
         'clear'                      => Command::clear,
         'create' | 'new' | 'adduser' => Command::create,
@@ -198,7 +200,7 @@ class Command::overview is Command::Immediate {
         my Entity @people = Entity.all-entities.grep(Person);
 
         for @people -> $person {
-            $person.print-contents(:quiet, :hidePermanent, :addNewline);
+            $person.print-contents(:quiet, :hidePermanent, :addNewline, :fancy);
         }
     }
 }
@@ -208,6 +210,35 @@ class Command::history is Command::Unary {
         given $entity {
             .print-lending-history when Location;
             .print-location(:10max) when Lendable;
+        }
+    }
+}
+
+class Command::tail is Command::Immediate {
+    method execute(@) {
+        my @log = gather {
+            for Entity.all-entities.grep(Lendable) -> $item {
+                next if not $item.location_history;
+                for $item.location_history -> $entry {
+                    take %(
+                        dt => $entry<dt>,
+                        id => $item.id,
+                        location => $entry<location>,
+                        returned => $item.location.id.lc eq "lhq-returns",
+                        permanent => $item.stays;
+                    ) if $entry<location>;
+                }
+            }
+        }
+
+        for @log.sort({ $_<dt> }) {
+            my $dt = DateTime.new($_<dt>);
+            my $line = "  {$dt.year.fmt('%.2d')}-{$dt.month.fmt('%.2d')}-{$dt.day.fmt('%.2d')} {$dt.hh-mm-ss} $_<id> at $_<location>" ~ (" (permanent)" if $_<permanent>);
+            if $_<returned> {
+                say gray($line);
+            } else {
+                say $line;
+            }
         }
     }
 }

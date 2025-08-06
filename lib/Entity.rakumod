@@ -120,7 +120,7 @@ class Entity {
 }
 
 role Location {
-    method print-contents(Bool :$quiet = False, Bool :$hidePermanent = False, Bool :$addNewline = False) {
+    method print-contents(Bool :$quiet = False, Bool :$hidePermanent = False, Bool :$addNewline = False, :$fancy = False) {
         Entity.all-entities».update;
 
         my Entity @items = Entity.all-entities.grep(Lendable)
@@ -130,9 +130,23 @@ role Location {
         
         return if $quiet and not @items;
 
-        put "{ self } has { +@items } {
-            @items == 0 ?? 'items.' !! @items == 1 ?? 'item:' !! 'items:' }";
-        put yellow("* "), $_, (.stays ?? " (permanent)" !! "") for @items;
+        if $fancy {
+            my $firstline = "{ self.id.fmt('%20s') } has ";
+            my Bool $isFirst = True;
+
+            for @items {
+                {
+                    put yellow ~ $firstline ~ no-color() ~ $_.id;
+                    $isFirst = False;
+                    next;
+                } when $isFirst;
+                put " " x $firstline.chars, $_.id, (.stays ?? " (permanent)" !! "");
+            }
+        } else {
+            put "{ self } has { +@items } {
+                @items == 0 ?? 'items.' !! @items == 1 ?? 'item:' !! 'items:' }";
+            put yellow("* "), $_, (.stays ?? " (permanent)" !! "") for @items;
+        }
 
         put() if $addNewline;
     }
@@ -144,14 +158,18 @@ role Location {
             for Entity.all-entities.grep(Lendable) -> $item {
                 next if not $item.location_history;
                 for $item.location_history -> $entry {
-                    take [$entry<dt>, $item.id, $item.location.id.lc ne $.id.lc ] if ($entry<location> && $entry<location>.lc eq $.id.lc);
+                    take %(
+                        dt => $entry<dt>,
+                        id => $item.dt,
+                        returned => $item.location.id.lc ne $.id.lc,
+                    ) if ($entry<location> && $entry<location>.lc eq $.id.lc);
                 }
             }
         }
 
-        for @mine.sort({ $_[0] }) {
-            my $dt = DateTime.new($_[0]);
-            say "  {$dt.year.fmt('%.2d')}-{$dt.month.fmt('%.2d')}-{$dt.day.fmt('%.2d')} {$dt.hh-mm-ss} $_[1]" ~  ($_[2] ?? (yellow " (returned)") !! "" );
+        for @mine.sort({ $_<dt> }) {
+            my $dt = DateTime.new($_<dt>);
+            say "  {$dt.year.fmt('%.2d')}-{$dt.month.fmt('%.2d')}-{$dt.day.fmt('%.2d')} {$dt.hh-mm-ss} $_<id>" ~  ($_<returned> ?? (yellow " (returned)") !! "" );
         }
     }
 }
