@@ -231,7 +231,7 @@ class Command::tail is Command::Immediate {
             }
         }
 
-        for @log.sort({ $_<dt> }) {
+        for @log.sort({ $_<dt> }).tail(200) {
             my $dt = DateTime.new($_<dt>);
             my $line = "  {$dt.year.fmt('%.2d')}-{$dt.month.fmt('%.2d')}-{$dt.day.fmt('%.2d')} {$dt.hh-mm-ss} $_<id> at $_<location>" ~ (" (permanent)" if $_<permanent>);
             if $_<returned> {
