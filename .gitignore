@@ -7,3 +7,4 @@ stats-config.json
 node_modules
 config.ini
 .direnv
+.DS_Store
